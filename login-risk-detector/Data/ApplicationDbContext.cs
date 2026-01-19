@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using login_risk_detector.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace login_risk_detector.Data
@@ -9,5 +10,7 @@ namespace login_risk_detector.Data
             : base(options)
         {
         }
+        public DbSet<LoginEvent> LoginEvents { get; set; }
+        
     }
 }

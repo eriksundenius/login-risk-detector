@@ -16,6 +16,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using login_risk_detector.Models;
+using login_risk_detector.Services;
 
 namespace login_risk_detector.Areas.Identity.Pages.Account
 {
@@ -25,16 +26,17 @@ namespace login_risk_detector.Areas.Identity.Pages.Account
         private readonly ILogger<LoginModel> _logger;
         private readonly ApplicationDbContext _db;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly IGeoLocationService _geoLocationService;
 
 
 
-        public LoginModel(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger, ApplicationDbContext db, UserManager<IdentityUser> userManager)
+        public LoginModel(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger, ApplicationDbContext db, UserManager<IdentityUser> userManager, IGeoLocationService geoLocationService)
         {
             _signInManager = signInManager;
             _logger = logger;
             _db = db;
             _userManager = userManager;
-
+            _geoLocationService = geoLocationService;
         }
 
         /// <summary>
@@ -123,8 +125,9 @@ namespace login_risk_detector.Areas.Identity.Pages.Account
             //första ? om remoteip finns gör de till string
             // ?? null coalescing operator innebär om vänstra är null använd högra, i detta fall om Ip finns använd ip
             // annars använd unknown
-            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknow";
+            var ipAddress = " 81.232.137.97";
             var userAgent = Request.Headers["User-Agent"].ToString();
+            var countryCode = await _geoLocationService.GetCountryCodeAsync(ipAddress);
             //Med en HTTP request så hämtas metadata som user-agent, accept,language osv
             //Dessa är inte en string utan en dictioary, oftast flera strängar separerade med , man använder [key] 
 
@@ -144,8 +147,10 @@ namespace login_risk_detector.Areas.Identity.Pages.Account
                     UserId = user.Id,
                     Timestamp = DateTime.UtcNow,
                     IpAddress = ipAddress,
+                    CountryCode = countryCode,
                     UserAgent = userAgent,
-                    Suceeded = result.Succeeded
+                    Succeeded = result.Succeeded
+
 
                 });
                 await _db.SaveChangesAsync();

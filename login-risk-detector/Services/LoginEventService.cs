@@ -18,27 +18,36 @@ namespace login_risk_detector.Services
     public async Task<LoginEvent?> GetLastSuccessfulLogin(string userId)
         {
             return await _db.LoginEvents
-                .Where(e => e.UserId == userId && e.Suceeded)
+                .Where(e => e.UserId == userId && e.Succeeded)
                 .OrderByDescending(e => e.Timestamp)
                 .FirstOrDefaultAsync();
         }
 
-    public async Task<List<LoginEvent>> GetRecentSuccessfulLogins(string userId, DateTime since, int count)
+    public async Task<List<LoginEvent?>> GetRecentSuccessfulLogins(string userId, DateTime since, int count)
         {
             return await _db.LoginEvents
-                .Where(e => e.UserId == userId && e.Suceeded && e.Timestamp >= since)
+                .Where(e => e.UserId == userId && e.Succeeded && e.Timestamp >= since)
                 .OrderByDescending(e => e.Timestamp)
                 .Take(count)
                 .ToListAsync();
         }
 
-    public async Task<List<LoginEvent?>> GetLastUnSuccessfulLogins(string userId, DateTime since, int count)
+    public async Task<List<LoginEvent?>> GetLastFailedLogins(string userId, DateTime since, int count)
         {
             return await _db.LoginEvents
-                .Where(e => e.UserId == userId && e.Suceeded == false && e.Timestamp >= since)
+                .Where(e => e.UserId == userId && !e.Succeeded && e.Timestamp >= since)
                 .OrderByDescending(e => e.Timestamp)
                 .Take(count)
                 .ToListAsync();
         }
+
+        public async Task<bool> HasSeenDevice(string userId, string userAgent)
+        {
+            return await _db.LoginEvents
+                .AnyAsync(e => e.UserId == userId && e.UserAgent == userAgent);
+            //Any() finns det minst en rad som matchar
+        }
+
+
     }
 }

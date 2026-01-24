@@ -125,7 +125,7 @@ namespace login_risk_detector.Areas.Identity.Pages.Account
             //första ? om remoteip finns gör de till string
             // ?? null coalescing operator innebär om vänstra är null använd högra, i detta fall om Ip finns använd ip
             // annars använd unknown
-            var ipAddress = " 81.232.137.97";
+            var ipAddress = HttpContext.Connection.RemoteIpAddress.MapToIPv4()?.ToString() ?? "unknow";
             var userAgent = Request.Headers["User-Agent"].ToString();
             var countryCode = await _geoLocationService.GetCountryCodeAsync(ipAddress);
             //Med en HTTP request så hämtas metadata som user-agent, accept,language osv

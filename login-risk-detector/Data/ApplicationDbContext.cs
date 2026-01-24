@@ -11,6 +11,7 @@ namespace login_risk_detector.Data
         {
         }
         public DbSet<LoginEvent> LoginEvents { get; set; }
+
         
     }
 }

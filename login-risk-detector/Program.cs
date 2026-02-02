@@ -14,7 +14,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
-builder.Services.AddHttpClient<IGeoLocationService, FreeIPApiGeoIPService>();
+builder.Services.AddHttpClient<IGeoLocationService, GeoApiService>();
 
 var app = builder.Build();
 

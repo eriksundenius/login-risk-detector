@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace login_risk_detector.Services
 {
-    public class FreeIPApiGeoIPService : IGeoLocationService
+    public class GeoApiService : IGeoLocationService
     {
         //Detta är med hjälp av https://weblogs.asp.net/ricardoperes/getting-location-and-weather-from-an-ip-address/ väldigt bra
         
@@ -14,7 +14,7 @@ namespace login_risk_detector.Services
         private static readonly JsonSerializerOptions _options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         private readonly HttpClient _httpClient;
 
-        public FreeIPApiGeoIPService(HttpClient httpClient)
+        public GeoApiService(HttpClient httpClient)
         {
             //Exception om säg sidan skulle ligga nere 
             ArgumentNullException.ThrowIfNull(httpClient, nameof(httpClient));

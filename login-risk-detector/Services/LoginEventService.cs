@@ -48,6 +48,11 @@ namespace login_risk_detector.Services
             //Any() finns det minst en rad som matchar
         }
 
+        public async Task<bool> HasSeenCountry(string userId, string countryCode)
+        {
+            return await _db.LoginEvents
+                .AnyAsync(e => e.UserId == userId && e.CountryCode == countryCode);
+        }
 
     }
 }

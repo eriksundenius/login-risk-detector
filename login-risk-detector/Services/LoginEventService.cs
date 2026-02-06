@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using login_risk_detector.Data;
+﻿using login_risk_detector.Data;
 using login_risk_detector.Models;
+using Microsoft.EntityFrameworkCore;
+using NuGet.Packaging.Signing;
 using System.Linq;
 
 namespace login_risk_detector.Services
@@ -52,6 +53,16 @@ namespace login_risk_detector.Services
         {
             return await _db.LoginEvents
                 .AnyAsync(e => e.UserId == userId && e.CountryCode == countryCode);
+        }
+
+        public async Task<List<DateTime>> GetAllLoginsTime(string userId, int count)
+        {
+            return await _db.LoginEvents
+                .Where(e => e.UserId == userId)
+                .OrderByDescending(e => e.Timestamp)
+                .Select(e => e.Timestamp)
+                .Take(count)
+                .ToListAsync();
         }
 
     }

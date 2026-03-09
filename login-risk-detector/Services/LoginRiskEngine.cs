@@ -82,7 +82,7 @@ namespace login_risk_detector.Services
             if(failedLogins.Count == 0) { return; }
             if(failedLogins.Count >= count) 
             {  
-                result.RiskScore += 50;
+                result.RiskScore += 100;
                 result.Reasons.Add("Brute force detected");
             }
         }

@@ -15,6 +15,11 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient<IGeoLocationService, GeoApiService>();
+builder.Services.AddScoped<LoginEventService>();
+builder.Services.AddScoped<LoginRiskEngine>();
+builder.Services.AddScoped<LoginRiskPolicy>();
+builder.Services.AddScoped<SecurityNotificationService>();
+
 
 var app = builder.Build();
 
@@ -37,8 +42,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using login_risk_detector.Models;
 using login_risk_detector.Services;
 
+
 namespace login_risk_detector.Areas.Identity.Pages.Account
 {
     public class LoginModel : PageModel
@@ -27,16 +28,26 @@ namespace login_risk_detector.Areas.Identity.Pages.Account
         private readonly ApplicationDbContext _db;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IGeoLocationService _geoLocationService;
+        private readonly LoginRiskEngine _loginRiskEngine;
+        private readonly LoginRiskPolicy _loginRiskPolicy;
 
 
-
-        public LoginModel(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger, ApplicationDbContext db, UserManager<IdentityUser> userManager, IGeoLocationService geoLocationService)
+        public LoginModel(
+    SignInManager<IdentityUser> signInManager,
+    ILogger<LoginModel> logger,
+    ApplicationDbContext db,
+    UserManager<IdentityUser> userManager,
+    IGeoLocationService geoLocationService,
+    LoginRiskEngine loginRiskEngine,
+    LoginRiskPolicy loginRiskPolicy)
         {
             _signInManager = signInManager;
             _logger = logger;
             _db = db;
             _userManager = userManager;
             _geoLocationService = geoLocationService;
+            _loginRiskEngine = loginRiskEngine;
+            _loginRiskPolicy = loginRiskPolicy;
         }
 
         /// <summary>
@@ -142,7 +153,7 @@ namespace login_risk_detector.Areas.Identity.Pages.Account
 
             if (user != null) //någon kan skriva in en email som inte finns då behöver v
             {
-                _db.LoginEvents.Add(new LoginEvent
+                var currentLogin = new LoginEvent
                 {
                     UserId = user.Id,
                     Timestamp = DateTime.UtcNow,
@@ -152,8 +163,14 @@ namespace login_risk_detector.Areas.Identity.Pages.Account
                     Succeeded = result.Succeeded
 
 
-                });
+                };
+                _db.LoginEvents.Add(currentLogin);
                 await _db.SaveChangesAsync();
+
+                var riskResult = await _loginRiskEngine.AssessRisk(currentLogin);
+                var riskLevel = _loginRiskPolicy.GetRiskLevel(riskResult.RiskScore);
+
+                await _loginRiskPolicy.DecideAction(riskLevel, user);
             } //Här loggar vi ett inloggsförsök och eller ett lyckat inlogg genom att skapa ett objekt av loginevent
 
 
